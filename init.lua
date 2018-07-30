@@ -402,7 +402,7 @@ if minetest.get_modpath("doors") then
     
     doors.register("door_dried_bamboo", {
         tiles = {{ name = "bamboo_forest_dried_door.png", backface_culling = true }},
-        description = "dried Bamboo Door",
+        description = "Dried Bamboo Door",
         inventory_image = "bamboo_forest_dried_door_item.png",
         groups = {choppy=2, oddly_breakable_by_hand=2, flammable=2,},
         recipe = {
@@ -414,12 +414,12 @@ if minetest.get_modpath("doors") then
     
     doors.register("door_bamboo", {
         tiles = {{ name = "bamboo_forest_door.png", backface_culling = true }},
-        description = "Dried Bamboo Door",
+        description = "Bamboo Door",
         inventory_image = "bamboo_forest_door_item.png",
         groups = {choppy=2, oddly_breakable_by_hand=2, flammable=2,},
         recipe = {
             {"bamboo_forest:planks", "bamboo_forest:planks"},
-            {"bamboo_forest:dried_planks", "bamboo_forest:planks"},
+            {"bamboo_forest:planks", "bamboo_forest:planks"},
             {"bamboo_forest:planks", "bamboo_forest:planks"},
         },
     })
