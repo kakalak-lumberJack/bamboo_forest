@@ -235,6 +235,9 @@ bamboo_forest.grow = function(pos, node)
     end
 end
 
+----------------
+-- Forest Stuff
+----------------
 minetest.register_abm({
     label = "bamboo_forest:grow",
     nodenames = "bamboo_forest:sprout",
@@ -394,7 +397,9 @@ default.register_leafdecay({
     leaves = {"bamboo_forest:leaves"},
     radius = 2,
 })
-
+--------------------------------
+-- Items and other mod support
+--------------------------------
 default.register_fence("bamboo_forest:fence", {
     description = "Bamboo Fence,",
     texture = "bamboo_forest_fence.png",
@@ -461,6 +466,43 @@ if minetest.get_modpath("doors") then
             {"bamboo_forest:planks", "bamboo_forest:planks"},
         },
     })
+end
+
+if stairsplus then
+	local stairnodes = {
+		{"planks",
+			{
+				"bamboo_forest_planks_top.png", "bamboo_forest_planks_top.png",
+				"bamboo_forest_planks.png", "bamboo_forest_planks.png",
+				"bamboo_forest_planks.png", "bamboo_forest_planks.png",
+			},
+		"Planks",
+		}, 
+		{"dried_planks",
+			{
+				"bamboo_forest_dried_planks_top.png", "bamboo_forest_dried_planks_top.png",
+				"bamboo_forest_dried_planks.png", "bamboo_forest_dried_planks.png",
+				"bamboo_forest_dried_planks.png", "bamboo_forest_dried_planks.png",
+			},
+			"Dried Planks"
+		
+		}, 
+		{"brick", {"bamboo_forest_brick.png"}, "Brick"}, 
+		{"dried_brick", {"bamboo_forest_dried_brick.png"}, "Dried Brick"}
+	}
+	
+	for i = 1, #stairnodes do
+		local nodename = stairnodes[i][1]
+		local textures = stairnodes[i][2]
+		local desc = stairnodes[i][3]
+		stairsplus:register_all("bamboo_forest", nodename, "bamboo_forest:"..nodename, {
+			description = "Bamboo " .. desc,
+			tiles = textures,
+			groups = {choppy=3},
+			sounds = default.node_sound_wood_defaults(),
+		})
+		minetest.log(nodename .. " registered with Stairsplus") 
+	end
 end
 
 -----------
