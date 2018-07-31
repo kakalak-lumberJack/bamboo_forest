@@ -468,8 +468,8 @@ if minetest.get_modpath("doors") then
     })
 end
 
-if stairsplus then
-	local stairnodes = {
+
+local stairnodes = {
 		{"planks",
 			{
 				"bamboo_forest_planks_top.png", "bamboo_forest_planks_top.png",
@@ -490,21 +490,45 @@ if stairsplus then
 		{"brick", {"bamboo_forest_brick.png"}, "Brick"}, 
 		{"dried_brick", {"bamboo_forest_dried_brick.png"}, "Dried Brick"}
 	}
-	
-	for i = 1, #stairnodes do
-		local nodename = stairnodes[i][1]
-		local textures = stairnodes[i][2]
-		local desc = stairnodes[i][3]
-		stairsplus:register_all("bamboo_forest", nodename, "bamboo_forest:"..nodename, {
-			description = "Bamboo " .. desc,
-			tiles = textures,
-			groups = {choppy=3},
-			sounds = default.node_sound_wood_defaults(),
-		})
-		minetest.log(nodename .. " registered with Stairsplus") 
-	end
-end
 
+if stairs or stairsplus then
+    for i = 1, #stairnodes do
+        local nodename = stairnodes[i][1]
+        local textures = stairnodes[i][2]
+            local desc = stairnodes[i][3]
+
+        if minetest.get_modpath("stairs") then    
+            stairs.register_stair_and_slab(
+                nodename,
+                "bamboo_forest:"..nodename,
+                {choppy=3, flammable = 2},
+                textures,
+                desc .. " Stair",
+                desc .. " Slab",
+                default.node_sound_wood_defaults()
+            )
+        end
+
+        if stairsplus then
+            
+            stairsplus:register_all("bamboo_forest", nodename, "bamboo_forest:"..nodename, {
+                description = "Bamboo " .. desc,
+                tiles = textures,
+                groups = {choppy=3, flammable=2},
+                sounds = default.node_sound_wood_defaults(),
+            })
+            minetest.log(nodename .. " registered with Stairsplus") 
+        end
+        
+        if stairsplus and stairs then
+        minetest.log("Alias")
+        minetest.register_alias_force("stairs:slab_".. nodename, "bamboo_forest :slab_"..nodename)
+        minetest.register_alias_force("stairs:stair_"..nodename, "bamboo_forest:stair_"..nodename)
+        
+        end
+
+    end
+end
 -----------
 -- Crafts
 -----------
