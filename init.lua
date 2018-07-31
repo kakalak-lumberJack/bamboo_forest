@@ -240,7 +240,7 @@ minetest.register_abm({
     nodenames = "bamboo_forest:sprout",
     neighbors = {ground_node, "bamboo_forest:shoot"},
     interval = 31,
-    chance = 24,
+    chance = 37,
     catch_up = false,
     action = function(pos, node)
         bamboo_forest.grow(pos, node)
@@ -278,6 +278,45 @@ minetest.register_abm({
     end
 })
 
+minetest.register_abm({
+	label = "bamboo_forest:mushroom_spread",
+	nodenames = "bamboo_forest:veiled_lady",
+	interval = 53,
+	chance = 128,
+	catch_up = false,
+	action = function(pos, node)
+		local empty_places = minetest.find_nodes_in_area_under_air(
+			{x=pos.x-2, y=pos.y-2, z=pos.z-2},
+			{x=pos.x+2, y=pos.y, z=pos.z+2},
+			{"bamboo_forest:dirt_with_bamboo_leaf_litter"}
+		)
+		if #empty_places > 0 then
+			local below_shroom_pos = empty_places[math.random(1, #empty_places)]
+			local shroom_pos = below_shroom_pos
+			shroom_pos.y = shroom_pos.y + 1
+			local light_level = minetest.get_node_light(shroom_pos)
+
+			if light_level <=12 then
+				minetest.set_node(shroom_pos, {name="bamboo_forest:veiled_lady"})
+			end
+		end
+	end
+})
+
+minetest.register_abm({
+	label = "bamboo_forest:mushroom_death",
+	nodenames = "bamboo_forest:veiled_lady",
+	interval = 73,
+	chance = 27,
+	catch_up = false,
+	action = function(pos, node)
+		local light_level = minetest.get_node_light(pos)
+		if light_level > 12 then
+			minetest.remove_node(pos)
+		end
+	end
+})
+
 minetest.register_biome({
     name = "bamboo_forest",
     node_dust = "",
@@ -291,7 +330,7 @@ minetest.register_biome({
     y_min = 2,
     y_max =31000,
     heat_point = 40,
-    humidity_point = 60,
+    humidity_point = 50,
 })
 
 minetest.register_biome({
@@ -306,7 +345,7 @@ minetest.register_biome({
     y_min = 20,
     y_max = 31000,
     heat_point = 30,
-    humidity_point = 65,
+    humidity_point = 60,
 })
 
 minetest.register_decoration({
@@ -345,7 +384,7 @@ minetest.register_decoration({
     deco_type = "simple",
     place_on = ground_node,
     sidelen = 16,
-    fill_ration = 0.01,
+    fill_ration = 0.0095,
     biomes = {"bamboo_forest", "snowy_bamboo_forest"},
     decoration = "bamboo_forest:veiled_lady",
 })
@@ -381,7 +420,6 @@ default.register_fence("bamboo_forest:dried_fence", {
 
 if minetest.get_modpath("walls") then
     walls.register("bamboo_forest:wall", "Bamboo Wall", textures, "bamboo_forest:planks", default.node_sound_wood_defaults())
-   
     walls.register("bamboo_forest:dried_wall", "Dried Bamboo Wall", {"bamboo_forest_dried_planks_top.png", "bamboo_forest_dried_planks_top.png", "bamboo_forest_dried_planks.png", "bamboo_forest_dried_planks.png", "bamboo_forest_dried_planks.png", "bamboo_forest_dried_planks.png",}, "bamboo_forest:dried_planks", default.node_sound_wood_defaults())
 end
 
