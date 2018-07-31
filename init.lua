@@ -521,7 +521,6 @@ if stairs or stairsplus then
         end
         
         if stairsplus and stairs then
-        minetest.log("Alias")
         minetest.register_alias_force("stairs:slab_".. nodename, "bamboo_forest :slab_"..nodename)
         minetest.register_alias_force("stairs:stair_"..nodename, "bamboo_forest:stair_"..nodename)
         
