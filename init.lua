@@ -494,37 +494,28 @@ if stairs or stairsplus then
     for i = 1, #stairnodes do
         local nodename = stairnodes[i][1]
         local textures = stairnodes[i][2]
-            local desc = stairnodes[i][3]
-
-        if minetest.get_modpath("stairs") then    
-            stairs.register_stair_and_slab(
-                nodename,
-                "bamboo_forest:"..nodename,
-                {choppy=3, flammable = 2},
-                textures,
-                desc .. " Stair",
-                desc .. " Slab",
-                default.node_sound_wood_defaults()
-            )
-        end
-
+        local desc = stairnodes[i][3]
         if stairsplus then
-            
+                
             stairsplus:register_all("bamboo_forest", nodename, "bamboo_forest:"..nodename, {
-                description = "Bamboo " .. desc,
-                tiles = textures,
-                groups = {choppy=3, flammable=2},
-                sounds = default.node_sound_wood_defaults(),
+                    description = "Bamboo " .. desc,
+                    tiles = textures,
+                    groups = {choppy=3, flammable=2},
+                    sounds = default.node_sound_wood_defaults(),
             })
             minetest.log(nodename .. " registered with Stairsplus") 
-        end
         
-        if stairsplus and stairs then
-        minetest.register_alias_force("stairs:slab_".. nodename, "bamboo_forest :slab_"..nodename)
-        minetest.register_alias_force("stairs:stair_"..nodename, "bamboo_forest:stair_"..nodename)
-        
+        elseif minetest.get_modpath("stairs") then    
+                stairs.register_stair_and_slab(
+                    nodename,
+                    "bamboo_forest:"..nodename,
+                    {choppy=3, flammable = 2},
+                    textures,
+                    desc .. " Stair",
+                    desc .. " Slab",
+                    default.node_sound_wood_defaults()
+                )
         end
-
     end
 end
 -----------
