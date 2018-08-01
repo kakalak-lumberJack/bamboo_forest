@@ -28,7 +28,6 @@ minetest.register_node("bamboo_forest:veiled_lady", {
     walkable = false,
     buildable_to = "true",
     groups = {snappy=3, attached_node=1, oddly_breakable_by_hand=3, flammable = 1, food_mushroom=1},
-    sounds = default.node_sound_leaves_defaults(),
     on_use = minetest.item_eat(1),
     selection_box = {
         type = "fixed",
@@ -395,7 +394,7 @@ minetest.register_decoration({
 default.register_leafdecay({
     trunks = {"bamboo_forest:trunk"},
     leaves = {"bamboo_forest:leaves"},
-    radius = 2,
+    radius = 1.5,
 })
 --------------------------------
 -- Items and other mod support
