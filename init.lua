@@ -27,7 +27,7 @@ minetest.register_node("bamboo_forest:veiled_lady", {
     sunlight_propagates = "true",
     walkable = false,
     buildable_to = "true",
-    groups = {snappy=3, attached_node=1, oddly_breakable_by_hand=3, flammable = 1, food_mushroom=1},
+    groups = {snappy=3, attached_node=1, oddly_breakable_by_hand=3, flammable = 1, food_mushroom=1, dig_immediate=1},
     on_use = minetest.item_eat(1),
     selection_box = {
         type = "fixed",
@@ -119,7 +119,7 @@ minetest.register_node("bamboo_forest:leaves", {
 })
 
 minetest.register_node("bamboo_forest:trunk", {
-	description = "Bamboo Shoot",
+	description = "Bamboo Trunk",
 	drawtype = "nodebox",
 	tiles = {
 		"bamboo_forest_trunk_top.png","bamboo_forest_trunk_top.png",
@@ -252,8 +252,8 @@ minetest.register_abm({
 minetest.register_abm({
     label = "bamboo_forest:spread",
     nodenames = "bamboo_forest:trunk",
-    interval = 59,
-    chance = 640,
+    interval = 79,
+    chance = 840,
     catchup = false,
     action = function(pos, node)
         local num = minetest.find_nodes_in_area(
