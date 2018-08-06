@@ -243,7 +243,7 @@ minetest.register_abm({
     neighbors = {ground_node, "bamboo_forest:shoot"},
     interval = 31,
     chance = 37,
-    catch_up = false,
+    catch_up = true,
     action = function(pos, node)
         bamboo_forest.grow(pos, node)
     end
@@ -253,7 +253,7 @@ minetest.register_abm({
     label = "bamboo_forest:spread",
     nodenames = "bamboo_forest:trunk",
     interval = 79,
-    chance = 840,
+    chance = 960,
     catchup = false,
     action = function(pos, node)
         local num = minetest.find_nodes_in_area(
