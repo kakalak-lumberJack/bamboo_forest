@@ -205,7 +205,7 @@ bamboo_forest.grow = function(pos, node)
         for h = 1, 5 do
             local check_pos = {x=pos.x, y=pos.y-h, z=pos.z}
             local node_under = minetest.get_node(check_pos).name
-            if node_under == ground_node then
+            if minetest.get_item_group(node_under, "soil") > 0 then
                 if h < 5 then
                     minetest.set_node({x=pos.x, y=pos.y + 1, z=pos.z}, {name=node.name})
                     local obj = minetest.get_objects_inside_radius(pos, 1)
@@ -240,7 +240,7 @@ end
 minetest.register_abm({
     label = "bamboo_forest:grow",
     nodenames = "bamboo_forest:sprout",
-    neighbors = {ground_node, "bamboo_forest:shoot"},
+    neighbors = {"group:soil", "bamboo_forest:shoot"},
     interval = 31,
     chance = 37,
     catch_up = true,
