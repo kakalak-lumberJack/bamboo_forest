@@ -139,11 +139,46 @@ minetest.register_node("bamboo_forest:trunk", {
 	},
     on_place = minetest.rotate_node,
 })
+
+---------------------
+-- Bamboo schematic
+--------------------
+local bamboo_schematic = {
+    size = {x = 3, y = 8, z = 3},
+    data = {},
+    yslice_prob = {{ypos = 1, prob = 128}}
+}
+
+for z = 1, bamboo_schematic.size.z do
+    for y = 1, bamboo_schematic.size.y do
+        for x = 1, bamboo_schematic.size.z do
+            if y <= 6 then
+                if x == 2 and z == 2 then
+                    table.insert(bamboo_schematic.data, {name = "bamboo_forest:trunk"})
+                elseif y == 6 then
+                    if (x == 1 or x == 3) and (z == 1 or z == 3) then
+                        table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves", param1=128})
+                    else
+                        table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves"})
+                    end
+                else
+                    table.insert(bamboo_schematic.data, {name = "ignore"})
+                end
+            else
+                if (x == 1 or x == 3) and (z == 1 or z == 3) and y == 8 then
+                    table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves", param1=192})
+                else
+                    table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves"})
+                end
+            end
+        end
+    end
+end
+
 ---------------------
 --Craftable nodes
 ---------------------
 
-        
 minetest.register_node("bamboo_forest:planks", {
     description = "Bamboo Planks",
     tiles = {
@@ -172,7 +207,6 @@ minetest.register_node("bamboo_forest:dried_planks", {
     sounds = default.node_sound_wood_defaults(),
 })
 
-
 function bamboo_forest.register_bamboo_brick(dried_, desc)
     
     minetest.register_node("bamboo_forest:"..dried_.."brick", {
@@ -196,7 +230,6 @@ end
 
 bamboo_forest.register_bamboo_brick("", "Bamboo Brick")
 bamboo_forest.register_bamboo_brick("dried_", "Dried Bamboo Brick")
-
 
 
 bamboo_forest.grow = function(pos, node)
@@ -225,7 +258,8 @@ bamboo_forest.grow = function(pos, node)
                         minetest.remove_node(remove_pos)
                         if n == 4 then
                             local place_pos = {x=remove_pos.x-1, y=remove_pos.y, z=remove_pos.z-1}
-                            minetest.place_schematic(place_pos, minetest.get_modpath("bamboo_forest").."/schems/bamboo.mts", "0", {}, false)
+                            --minetest.place_schematic(place_pos, minetest.get_modpath("bamboo_forest").."/schems/bamboo.mts", "0", {}, false)
+                            minetest.place_schematic(place_pos, bamboo_schematic)
                         end
                     end
                 end
@@ -332,7 +366,7 @@ minetest.register_biome({
     y_min = 2,
     y_max =31000,
     heat_point = 40,
-    humidity_point = 50,
+    humidity_point = 60,
 })
 
 minetest.register_biome({
@@ -346,7 +380,7 @@ minetest.register_biome({
     depth_riverbed = 2,
     y_min = 20,
     y_max = 31000,
-    heat_point = 30,
+    heat_point = 33,
     humidity_point = 60,
 })
 
@@ -354,14 +388,13 @@ minetest.register_decoration({
     deco_type = "schematic",
     place_on = ground_node,
     sidelen = 16,
-    fill_ratio = 0.1,
+    fill_ratio = 0.09,
     biomes = {"bamboo_forest", "snowy_bamboo_forest"},
-    schematic = "schems/bamboo.mts",
-    flags = {
-        place_center_x = true, 
-        place_center_y=false, 
-        place_center_z=true
-    },
+    schematic = bamboo_schematic,
+    --place_center_x = true,
+    --place_center_y = false,
+    --place_center_z = true
+
 })
 
 minetest.register_decoration({
