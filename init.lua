@@ -24,9 +24,9 @@ minetest.register_node("bamboo_forest:veiled_lady", {
     tiles = {"bamboo_forest_veiled_lady.png"},
     inventory_image = "bamboo_forest_veiled_lady.png",
     paramtype = "light",
-    sunlight_propagates = "true",
+    sunlight_propagates = true,
     walkable = false,
-    buildable_to = "true",
+    buildable_to = true,
     groups = {snappy=3, attached_node=1, oddly_breakable_by_hand=3, flammable = 1, food_mushroom=1, dig_immediate=1},
     on_use = minetest.item_eat(1),
     selection_box = {
@@ -73,6 +73,7 @@ minetest.register_node("bamboo_forest:shoot", {
 	climbable = true,
 	paramtype = "light",
 	paramtype2 = "facedir",
+	use_texture_alpha = "clip",
 	groups = {choppy=2, snappy=2, oddly_breakable_by_hand = 1, flammable = 2, stick = 1},
     sounds = default.node_sound_wood_defaults(),
     on_place = minetest.rotate_node,
@@ -131,6 +132,7 @@ minetest.register_node("bamboo_forest:trunk", {
 	paramtype = "light",
 	sunlight_propgates = true,
 	paramtype2 = "facedir",
+	use_texture_alpha = "clip",
 	groups = {choppy=2},
 	sounds = default.node_sound_wood_defaults(),
 	node_box = {
