@@ -1,5 +1,5 @@
 local bamboo_forest = {}
-local ground_node = "bamboo_forest:dirt_with_bamboo_leaf_litter" 
+local ground_node = "bamboo_forest:dirt_with_bamboo_leaf_litter"
 
 minetest.register_node("bamboo_forest:dirt_with_bamboo_leaf_litter", {
     description = "Dirt with Bamboo Leaf Litter",
@@ -146,18 +146,18 @@ minetest.register_node("bamboo_forest:trunk", {
 -- Bamboo schematic
 --------------------
 local bamboo_schematic = {
-    size = {x = 3, y = 8, z = 3},
+    size = {x = 3, y = 12, z = 3},
     data = {},
-    yslice_prob = {{ypos = 1, prob = 128}}
+    yslice_prob = {{ypos = 1, prob = 128}, {ypos = 2, prob = 128}, {ypos = 3, prob = 128}, {ypos = 4, prob = 128}}
 }
 
 for z = 1, bamboo_schematic.size.z do
     for y = 1, bamboo_schematic.size.y do
         for x = 1, bamboo_schematic.size.z do
-            if y <= 6 then
+            if y <= 10 then
                 if x == 2 and z == 2 then
                     table.insert(bamboo_schematic.data, {name = "bamboo_forest:trunk"})
-                elseif y == 6 then
+                elseif y == 10 then
                     if (x == 1 or x == 3) and (z == 1 or z == 3) then
                         table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves", param1=128})
                     else
@@ -167,7 +167,7 @@ for z = 1, bamboo_schematic.size.z do
                     table.insert(bamboo_schematic.data, {name = "ignore"})
                 end
             else
-                if (x == 1 or x == 3) and (z == 1 or z == 3) and y == 8 then
+                if (x == 1 or x == 3) and (z == 1 or z == 3) and y == 12 then
                     table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves", param1=192})
                 else
                     table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves"})
@@ -355,48 +355,72 @@ minetest.register_abm({
 	end
 })
 
-minetest.register_biome({
-    name = "bamboo_forest",
-    node_dust = "",
-    node_top = ground_node,
-    depth_top = 1,
-    node_filler = "default:dirt",
-    depth_filler = 2,
-    node_stone = "default:stone",
-    node_riverbed = "default:sand",
-    depth_riverbed = 2,
-    y_min = 2,
-    y_max =31000,
-    heat_point = 40,
-    humidity_point = 60,
-})
+-- minetest.register_biome({
+--     name = "bamboo_forest",
+--     node_dust = "",
+--     node_top = ground_node,
+--     depth_top = 1,
+--     node_filler = "default:dirt",
+--     depth_filler = 2,
+--     node_stone = "default:stone",
+--     node_riverbed = "default:sand",
+--     depth_riverbed = 2,
+--     y_min = 2,
+--     y_max =31000,
+--     heat_point = 43,
+--     humidity_point = 78,
+-- })
 
-minetest.register_biome({
-    name = "snowy_bamboo_forest",
-    node_dust = "default:snow",
-    node_top = ground_node,
-    depth_top = 1,
-    node_filler = "default:dirt",
-    depth_filler = 2,
-    node_riverbed = "default:sand",
-    depth_riverbed = 2,
-    y_min = 20,
+-- minetest.register_biome({
+--     name = "snowy_bamboo_forest",
+--     node_dust = "default:snow",
+--     node_top = ground_node,
+--     depth_top = 1,
+--     node_filler = "default:dirt",
+--     depth_filler = 2,
+--     node_riverbed = "default:sand",
+--     depth_riverbed = 2,
+--     y_min = 20,
+--     y_max = 31000,
+--     heat_point = 29,
+--     humidity_point = 78,
+-- })
+
+
+minetest.register_decoration({
+    deco_type = "simple",
+    place_on = {"default:dirt_with_grass", "default:dirt_with_coniferous_litter", "default:dirt_with_snow"},
+    sidelen = 4,
+    noise_params = {
+        offset = -1.6,
+        scale = -1.5,
+        spread = {x = 300, y = 300, z = 300},
+        seed = 423,
+        octaves = 4,
+        persist = 1
+    },
+    biomes = {"deciduous_forest", "coniferous_forest", "taiga"},
     y_max = 31000,
-    heat_point = 33,
-    humidity_point = 60,
+    y_min = 1,
+    decoration = "bamboo_forest:dirt_with_bamboo_leaf_litter",
+    place_offset_y = -1,
+    flags = "force_placement",
 })
 
 minetest.register_decoration({
     deco_type = "schematic",
     place_on = ground_node,
     sidelen = 16,
-    fill_ratio = 0.09,
-    biomes = {"bamboo_forest", "snowy_bamboo_forest"},
+    fill_ratio = 0.15,
+    biomes = {"bamboo_forest", "snowy_bamboo_forest", "deciduous_forest", "coniferous_forest", "taiga"},
     schematic = bamboo_schematic,
-    --place_center_x = true,
-    --place_center_y = false,
-    --place_center_z = true
-
+    place_offset_y = 1,
+    flags = {
+        place_center_x = true,
+        place_center_y = false,
+        place_center_z = true,
+        force_placement = true
+    }
 })
 
 minetest.register_decoration({
@@ -408,14 +432,14 @@ minetest.register_decoration({
     decoration = "default:grass_3",
 })
 
-minetest.register_decoration({
-    deco_type = "simple",
-    place_on = ground_node,
-    sidelen = 16,
-    fill_ratio = 0.03,
-    biomes = {"snowy_bamboo_forest"},
-    decoration = "default:dry_shrub",
-})
+-- minetest.register_decoration({
+--     deco_type = "simple",
+--     place_on = ground_node,
+--     sidelen = 16,
+--     fill_ratio = 0.03,
+--     biomes = {"snowy_bamboo_forest"},
+--     decoration = "default:dry_shrub",
+-- })
 
 minetest.register_decoration({
     deco_type = "simple",
@@ -537,8 +561,7 @@ if stairs or stairsplus then
                     tiles = textures,
                     groups = {choppy=3, flammable=2},
                     sounds = default.node_sound_wood_defaults(),
-            })
-            minetest.log(nodename .. " registered with Stairsplus") 
+            }) 
         
         elseif minetest.get_modpath("stairs") then    
                 stairs.register_stair_and_slab(
