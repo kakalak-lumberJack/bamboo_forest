@@ -355,38 +355,6 @@ minetest.register_abm({
 	end
 })
 
--- minetest.register_biome({
---     name = "bamboo_forest",
---     node_dust = "",
---     node_top = ground_node,
---     depth_top = 1,
---     node_filler = "default:dirt",
---     depth_filler = 2,
---     node_stone = "default:stone",
---     node_riverbed = "default:sand",
---     depth_riverbed = 2,
---     y_min = 2,
---     y_max =31000,
---     heat_point = 43,
---     humidity_point = 78,
--- })
-
--- minetest.register_biome({
---     name = "snowy_bamboo_forest",
---     node_dust = "default:snow",
---     node_top = ground_node,
---     depth_top = 1,
---     node_filler = "default:dirt",
---     depth_filler = 2,
---     node_riverbed = "default:sand",
---     depth_riverbed = 2,
---     y_min = 20,
---     y_max = 31000,
---     heat_point = 29,
---     humidity_point = 78,
--- })
-
-
 minetest.register_decoration({
     deco_type = "simple",
     place_on = {"default:dirt_with_grass", "default:dirt_with_coniferous_litter", "default:dirt_with_snow"},
@@ -395,7 +363,7 @@ minetest.register_decoration({
         offset = -1.6,
         scale = -1.5,
         spread = {x = 300, y = 300, z = 300},
-        seed = 423,
+        seed = 427,
         octaves = 4,
         persist = 1
     },
@@ -406,12 +374,64 @@ minetest.register_decoration({
     place_offset_y = -1,
     flags = "force_placement",
 })
+-- Place trees before bamboo so leaves do not replace bamboo shoots
+if sakuragi.cherry_tree_schematic ~= nil then
+    minetest.register_decoration({
+        name = "bamboo_forest:cherry_tree",
+        deco_type = "schematic",
+        place_on = {"bamboo_forest:dirt_with_bamboo_leaf_litter"},
+        sidelen = 16,
+        noise_params = {
+            offset = -0.031,
+            scale = -0.045,
+            spread = {x=300, y=300, z=300},
+            seed = 427,
+            octaves = 2,
+            persists = 1,
+        },
+        biomes = {"taiga", "deciduous_forest"},
+        schematic = sakuragi.cherry_tree_schematic,
+        rotation = "random",
+        place_offset_y = 0,
+        flags = {
+            place_center_x = true,
+            place_center_z = true,
+            force_placement = true,
+        }
+    })
+end
+
+if sakuragi.cherry_tree_white_schematic ~= nil then
+    minetest.register_decoration({
+        name = "bamboo_forest:cherry_tree_white",
+        deco_type = "schematic",
+        place_on = {"bamboo_forest:dirt_with_bamboo_leaf_litter"},
+        sidelen = 16,
+        noise_params = {
+            offset = -0.036,
+            scale = -0.045,
+            spread = {x=300, y=300, z=300},
+            seed = 427,
+            octaves = 2,
+            persists = 1,
+        },
+        biomes = {"taiga", "deciduous_forest"},
+        schematic = sakuragi.cherry_tree_white_schematic,
+        rotation = "random",
+        place_offset_y = 0,
+        flags = {
+            place_center_x = true,
+            place_center_z = true,
+            force_placement = true,
+        }
+    })
+end
 
 minetest.register_decoration({
     deco_type = "schematic",
     place_on = ground_node,
     sidelen = 16,
-    fill_ratio = 0.15,
+    fill_ratio = 0.12,
     biomes = {"bamboo_forest", "snowy_bamboo_forest", "deciduous_forest", "coniferous_forest", "taiga"},
     schematic = bamboo_schematic,
     place_offset_y = 1,
@@ -428,25 +448,14 @@ minetest.register_decoration({
     place_on = ground_node,
     sidelen = 16,
     fill_ratio = 0.04,
-    biomes = {"bamboo_forest"},
     decoration = "default:grass_3",
 })
-
--- minetest.register_decoration({
---     deco_type = "simple",
---     place_on = ground_node,
---     sidelen = 16,
---     fill_ratio = 0.03,
---     biomes = {"snowy_bamboo_forest"},
---     decoration = "default:dry_shrub",
--- })
 
 minetest.register_decoration({
     deco_type = "simple",
     place_on = ground_node,
     sidelen = 16,
-    fill_ration = 0.0095,
-    biomes = {"bamboo_forest", "snowy_bamboo_forest"},
+    fill_ratio = 0.0095,
     decoration = "bamboo_forest:veiled_lady",
 })
 
@@ -643,3 +652,4 @@ local fuel_items = {
 for _, item in ipairs(fuel_items) do
     bamboo_forest.register_fuel_craft(item[1], item[2])
 end
+
