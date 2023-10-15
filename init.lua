@@ -235,24 +235,32 @@ bamboo_forest.register_bamboo_brick("dried_", "Dried Bamboo Brick")
 
 
 bamboo_forest.grow = function(pos, node)
-    local pos_above = {x=pos.x, y=pos.y, z=pos.z}
+    local pos_above = {x=pos.x, y=pos.y+1, z=pos.z}
     if minetest.get_node_light(pos_above) > 12 then
         for h = 1, 5 do
             local check_pos = {x=pos.x, y=pos.y-h, z=pos.z}
             local node_under = minetest.get_node(check_pos).name
             if minetest.get_item_group(node_under, "soil") > 0 then
                 if h < 5 then
+                    local node_above = minetest.get_node(pos_above)
+                    if node_above.name ~= "air" and node_above.name ~= "bamboo_forest:leaves" then
+                        return
+                    end
                     minetest.set_node({x=pos.x, y=pos.y + 1, z=pos.z}, {name=node.name})
                     local obj = minetest.get_objects_inside_radius(pos, 1)
                     for _, ob in pairs(obj) do
-                        ob:remove()
+                        if ob:get_luaentity().name == "bamboo_forest:sprigs" then
+                            ob:remove()
+                        end
                     end
                     minetest.set_node(pos, {name="bamboo_forest:shoot"})
                     return
                 elseif h == 5 then
                      local obj = minetest.get_objects_inside_radius(pos, 1)
                     for _, ob in pairs(obj) do
-                        ob:remove()
+                        if ob:get_luaentity().name == "bamboo_forest:sprigs" then
+                            ob:remove()
+                        end
                     end
                     minetest.remove_node(pos)
                     for n = 1, 4 do
@@ -260,8 +268,7 @@ bamboo_forest.grow = function(pos, node)
                         minetest.remove_node(remove_pos)
                         if n == 4 then
                             local place_pos = {x=remove_pos.x-1, y=remove_pos.y, z=remove_pos.z-1}
-                            --minetest.place_schematic(place_pos, minetest.get_modpath("bamboo_forest").."/schems/bamboo.mts", "0", {}, false)
-                            minetest.place_schematic(place_pos, bamboo_schematic)
+                            minetest.place_schematic(place_pos, bamboo_schematic, "random", {}, false)
                         end
                     end
                 end
@@ -285,36 +292,38 @@ minetest.register_abm({
     end
 })
 
-minetest.register_abm({
-    label = "bamboo_forest:spread",
-    nodenames = "bamboo_forest:trunk",
-    interval = 79,
-    chance = 960,
-    catchup = false,
-    action = function(pos, node)
-        local num = minetest.find_nodes_in_area(
-            {x=pos.x-2, y=pos.y, z=pos.z-2},
-            {x=pos.x+2, y=pos.y, z=pos.z+2},
-            {"bamboo_forest:trunk"}
-        )
-        
-        if #num > 3 then
-            return
+if minetest.settings:get_bool("bamboo_forest.spread") ~= false then
+    minetest.register_abm({
+        label = "bamboo_forest:spread",
+        nodenames = "bamboo_forest:trunk",
+        interval = 79,
+        chance = 960,
+        catchup = false,
+        action = function(pos, node)
+            local num = minetest.find_nodes_in_area(
+                {x=pos.x-2, y=pos.y, z=pos.z-2},
+                {x=pos.x+2, y=pos.y, z=pos.z+2},
+                {"bamboo_forest:trunk"}
+            )
+
+            if #num > 3 then
+                return
+            end
+
+            local empty_pos = minetest.find_nodes_in_area_under_air(
+                {x=pos.x-2, y=pos.y-1, z=pos.z-2},
+                {x=pos.x+2, y=pos.y+1, z=pos.z+2},
+                {"bamboo_forest:dirt_with_bamboo_leaf_litter"}
+            )
+
+            if #empty_pos > 1 then
+                local pos_to_spread = empty_pos[math.random(1, #empty_pos)]
+                pos_to_spread.y = pos_to_spread.y + 1
+                minetest.set_node(pos_to_spread, {name="bamboo_forest:sprout"})
+            end
         end
-        
-        local empty_pos = minetest.find_nodes_in_area_under_air(
-            {x=pos.x-2, y=pos.y-1, z=pos.z-2},
-            {x=pos.x+2, y=pos.y+1, z=pos.z+2},
-            {"bamboo_forest:dirt_with_bamboo_leaf_litter"}
-        )
-        
-        if #empty_pos > 1 then
-            local pos_to_spread = empty_pos[math.random(1, #empty_pos)]
-            pos_to_spread.y = pos_to_spread.y + 1
-            minetest.set_node(pos_to_spread, {name="bamboo_forest:sprout"})
-        end
-    end
-})
+    })
+end
 
 minetest.register_abm({
 	label = "bamboo_forest:mushroom_spread",
