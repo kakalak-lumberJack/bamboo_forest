@@ -1,5 +1,5 @@
 local bamboo_forest = {}
-local ground_node = "bamboo_forest:dirt_with_bamboo_leaf_litter" 
+local ground_node = "bamboo_forest:dirt_with_bamboo_leaf_litter"
 
 minetest.register_node("bamboo_forest:dirt_with_bamboo_leaf_litter", {
     description = "Dirt with Bamboo Leaf Litter",
@@ -146,18 +146,18 @@ minetest.register_node("bamboo_forest:trunk", {
 -- Bamboo schematic
 --------------------
 local bamboo_schematic = {
-    size = {x = 3, y = 8, z = 3},
+    size = {x = 3, y = 12, z = 3},
     data = {},
-    yslice_prob = {{ypos = 1, prob = 128}}
+    yslice_prob = {{ypos = 1, prob = 128}, {ypos = 2, prob = 128}, {ypos = 3, prob = 128}, {ypos = 4, prob = 128}}
 }
 
 for z = 1, bamboo_schematic.size.z do
     for y = 1, bamboo_schematic.size.y do
         for x = 1, bamboo_schematic.size.z do
-            if y <= 6 then
+            if y <= 10 then
                 if x == 2 and z == 2 then
                     table.insert(bamboo_schematic.data, {name = "bamboo_forest:trunk"})
-                elseif y == 6 then
+                elseif y == 10 then
                     if (x == 1 or x == 3) and (z == 1 or z == 3) then
                         table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves", param1=128})
                     else
@@ -167,7 +167,7 @@ for z = 1, bamboo_schematic.size.z do
                     table.insert(bamboo_schematic.data, {name = "ignore"})
                 end
             else
-                if (x == 1 or x == 3) and (z == 1 or z == 3) and y == 8 then
+                if (x == 1 or x == 3) and (z == 1 or z == 3) and y == 12 then
                     table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves", param1=192})
                 else
                     table.insert(bamboo_schematic.data, {name = "bamboo_forest:leaves"})
@@ -235,24 +235,32 @@ bamboo_forest.register_bamboo_brick("dried_", "Dried Bamboo Brick")
 
 
 bamboo_forest.grow = function(pos, node)
-    local pos_above = {x=pos.x, y=pos.y, z=pos.z}
+    local pos_above = {x=pos.x, y=pos.y+1, z=pos.z}
     if minetest.get_node_light(pos_above) > 12 then
         for h = 1, 5 do
             local check_pos = {x=pos.x, y=pos.y-h, z=pos.z}
             local node_under = minetest.get_node(check_pos).name
             if minetest.get_item_group(node_under, "soil") > 0 then
                 if h < 5 then
+                    local node_above = minetest.get_node(pos_above)
+                    if node_above.name ~= "air" and node_above.name ~= "bamboo_forest:leaves" then
+                        return
+                    end
                     minetest.set_node({x=pos.x, y=pos.y + 1, z=pos.z}, {name=node.name})
                     local obj = minetest.get_objects_inside_radius(pos, 1)
                     for _, ob in pairs(obj) do
-                        ob:remove()
+                        if ob:get_luaentity().name == "bamboo_forest:sprigs" then
+                            ob:remove()
+                        end
                     end
                     minetest.set_node(pos, {name="bamboo_forest:shoot"})
                     return
                 elseif h == 5 then
                      local obj = minetest.get_objects_inside_radius(pos, 1)
                     for _, ob in pairs(obj) do
-                        ob:remove()
+                        if ob:get_luaentity().name == "bamboo_forest:sprigs" then
+                            ob:remove()
+                        end
                     end
                     minetest.remove_node(pos)
                     for n = 1, 4 do
@@ -260,8 +268,7 @@ bamboo_forest.grow = function(pos, node)
                         minetest.remove_node(remove_pos)
                         if n == 4 then
                             local place_pos = {x=remove_pos.x-1, y=remove_pos.y, z=remove_pos.z-1}
-                            --minetest.place_schematic(place_pos, minetest.get_modpath("bamboo_forest").."/schems/bamboo.mts", "0", {}, false)
-                            minetest.place_schematic(place_pos, bamboo_schematic)
+                            minetest.place_schematic(place_pos, bamboo_schematic, "random", {}, false)
                         end
                     end
                 end
@@ -285,36 +292,38 @@ minetest.register_abm({
     end
 })
 
-minetest.register_abm({
-    label = "bamboo_forest:spread",
-    nodenames = "bamboo_forest:trunk",
-    interval = 79,
-    chance = 960,
-    catchup = false,
-    action = function(pos, node)
-        local num = minetest.find_nodes_in_area(
-            {x=pos.x-2, y=pos.y, z=pos.z-2},
-            {x=pos.x+2, y=pos.y, z=pos.z+2},
-            {"bamboo_forest:trunk"}
-        )
-        
-        if #num > 3 then
-            return
+if minetest.settings:get_bool("bamboo_forest.spread") ~= false then
+    minetest.register_abm({
+        label = "bamboo_forest:spread",
+        nodenames = "bamboo_forest:trunk",
+        interval = 79,
+        chance = 960,
+        catchup = false,
+        action = function(pos, node)
+            local num = minetest.find_nodes_in_area(
+                {x=pos.x-2, y=pos.y, z=pos.z-2},
+                {x=pos.x+2, y=pos.y, z=pos.z+2},
+                {"bamboo_forest:trunk"}
+            )
+
+            if #num > 3 then
+                return
+            end
+
+            local empty_pos = minetest.find_nodes_in_area_under_air(
+                {x=pos.x-2, y=pos.y-1, z=pos.z-2},
+                {x=pos.x+2, y=pos.y+1, z=pos.z+2},
+                {"bamboo_forest:dirt_with_bamboo_leaf_litter"}
+            )
+
+            if #empty_pos > 1 then
+                local pos_to_spread = empty_pos[math.random(1, #empty_pos)]
+                pos_to_spread.y = pos_to_spread.y + 1
+                minetest.set_node(pos_to_spread, {name="bamboo_forest:sprout"})
+            end
         end
-        
-        local empty_pos = minetest.find_nodes_in_area_under_air(
-            {x=pos.x-2, y=pos.y-1, z=pos.z-2},
-            {x=pos.x+2, y=pos.y+1, z=pos.z+2},
-            {"bamboo_forest:dirt_with_bamboo_leaf_litter"}
-        )
-        
-        if #empty_pos > 1 then
-            local pos_to_spread = empty_pos[math.random(1, #empty_pos)]
-            pos_to_spread.y = pos_to_spread.y + 1
-            minetest.set_node(pos_to_spread, {name="bamboo_forest:sprout"})
-        end
-    end
-})
+    })
+end
 
 minetest.register_abm({
 	label = "bamboo_forest:mushroom_spread",
@@ -355,48 +364,94 @@ minetest.register_abm({
 	end
 })
 
-minetest.register_biome({
-    name = "bamboo_forest",
-    node_dust = "",
-    node_top = ground_node,
-    depth_top = 1,
-    node_filler = "default:dirt",
-    depth_filler = 2,
-    node_stone = "default:stone",
-    node_riverbed = "default:sand",
-    depth_riverbed = 2,
-    y_min = 2,
-    y_max =31000,
-    heat_point = 40,
-    humidity_point = 60,
-})
-
-minetest.register_biome({
-    name = "snowy_bamboo_forest",
-    node_dust = "default:snow",
-    node_top = ground_node,
-    depth_top = 1,
-    node_filler = "default:dirt",
-    depth_filler = 2,
-    node_riverbed = "default:sand",
-    depth_riverbed = 2,
-    y_min = 20,
+minetest.register_decoration({
+    deco_type = "simple",
+    place_on = {"default:dirt_with_grass", "default:dirt_with_coniferous_litter", "default:dirt_with_snow"},
+    sidelen = 4,
+    noise_params = {
+        offset = -1.6,
+        scale = -1.5,
+        spread = {x = 300, y = 300, z = 300},
+        seed = 427,
+        octaves = 4,
+        persist = 1
+    },
+    biomes = {"deciduous_forest", "coniferous_forest", "taiga"},
     y_max = 31000,
-    heat_point = 33,
-    humidity_point = 60,
+    y_min = 1,
+    decoration = "bamboo_forest:dirt_with_bamboo_leaf_litter",
+    place_offset_y = -1,
+    flags = "force_placement",
 })
+-- Place trees before bamboo so leaves do not replace bamboo shoots
+if minetest.get_modpath('sakuragi') ~= nil then
+    if sakuragi.cherry_tree_schematic ~= nil then
+        minetest.register_decoration({
+            name = "bamboo_forest:cherry_tree",
+            deco_type = "schematic",
+            place_on = {"bamboo_forest:dirt_with_bamboo_leaf_litter"},
+            sidelen = 16,
+            noise_params = {
+                offset = -0.031,
+                scale = -0.045,
+                spread = {x=300, y=300, z=300},
+                seed = 427,
+                octaves = 2,
+                persists = 1,
+            },
+            biomes = {"taiga", "deciduous_forest"},
+            schematic = sakuragi.cherry_tree_schematic,
+            rotation = "random",
+            place_offset_y = 0,
+            flags = {
+                place_center_x = true,
+                place_center_z = true,
+                force_placement = true,
+            }
+        })
+    end
+
+    if sakuragi.cherry_tree_white_schematic ~= nil then
+        minetest.register_decoration({
+            name = "bamboo_forest:cherry_tree_white",
+            deco_type = "schematic",
+            place_on = {"bamboo_forest:dirt_with_bamboo_leaf_litter"},
+            sidelen = 16,
+            noise_params = {
+                offset = -0.036,
+                scale = -0.045,
+                spread = {x=300, y=300, z=300},
+                seed = 427,
+                octaves = 2,
+                persists = 1,
+            },
+            biomes = {"taiga", "deciduous_forest"},
+            schematic = sakuragi.cherry_tree_white_schematic,
+            rotation = "random",
+            place_offset_y = 0,
+            flags = {
+                place_center_x = true,
+                place_center_z = true,
+                force_placement = true,
+            }
+        })
+    end
+end
 
 minetest.register_decoration({
     deco_type = "schematic",
     place_on = ground_node,
     sidelen = 16,
-    fill_ratio = 0.09,
-    biomes = {"bamboo_forest", "snowy_bamboo_forest"},
+    fill_ratio = 0.12,
+    biomes = {"bamboo_forest", "snowy_bamboo_forest", "deciduous_forest", "coniferous_forest", "taiga"},
     schematic = bamboo_schematic,
-    --place_center_x = true,
-    --place_center_y = false,
-    --place_center_z = true
-
+    place_offset_y = 1,
+    flags = {
+        place_center_x = true,
+        place_center_y = false,
+        place_center_z = true,
+        force_placement = true
+    }
 })
 
 minetest.register_decoration({
@@ -404,7 +459,6 @@ minetest.register_decoration({
     place_on = ground_node,
     sidelen = 16,
     fill_ratio = 0.04,
-    biomes = {"bamboo_forest"},
     decoration = "default:grass_3",
 })
 
@@ -412,17 +466,7 @@ minetest.register_decoration({
     deco_type = "simple",
     place_on = ground_node,
     sidelen = 16,
-    fill_ratio = 0.03,
-    biomes = {"snowy_bamboo_forest"},
-    decoration = "default:dry_shrub",
-})
-
-minetest.register_decoration({
-    deco_type = "simple",
-    place_on = ground_node,
-    sidelen = 16,
-    fill_ration = 0.0095,
-    biomes = {"bamboo_forest", "snowy_bamboo_forest"},
+    fill_ratio = 0.0095,
     decoration = "bamboo_forest:veiled_lady",
 })
 
@@ -537,8 +581,7 @@ if stairs or stairsplus then
                     tiles = textures,
                     groups = {choppy=3, flammable=2},
                     sounds = default.node_sound_wood_defaults(),
-            })
-            minetest.log(nodename .. " registered with Stairsplus") 
+            }) 
         
         elseif minetest.get_modpath("stairs") then    
                 stairs.register_stair_and_slab(
@@ -620,3 +663,4 @@ local fuel_items = {
 for _, item in ipairs(fuel_items) do
     bamboo_forest.register_fuel_craft(item[1], item[2])
 end
+
